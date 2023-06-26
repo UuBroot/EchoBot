@@ -43,6 +43,8 @@ client.on("ready", () => {
  *************/
 
 let inMemberAddToPrivateChannel = false;
+let memberArray = [];
+let usingMember;
 
 /**********
  * Events *
@@ -50,40 +52,43 @@ let inMemberAddToPrivateChannel = false;
 
 client.on('interactionCreate', (interaction) => {
 
-  if(inMemberAddToPrivateChannel){
+  if(!interaction.isChatInputCommand()){return;}
 
-    if(interaction.commandName === "exit"){
-
-      inMemberAddToPrivateChannel = false;
-      interaction.reply(`exited`);
-
+  switch(interaction.commandName){
+    case "ping":{
+      interaction.reply('pong');
     }
+    case "create-private-channel": {
+      
+      let channel_name = interaction.options.get('channel-name')?.value;
 
-    interaction.reply(`active member add`);
+      memberArray = []; //resets the member array
 
-  } 
-  else if ( !interaction.isChatInputCommand()){
-    console.log("TEST")
+      interaction.reply(`What channel members do you want for "${channel_name}. Type "exit" to end this:`);
 
-    return;
-  } //Checks if interatiction is / command
-  else {
-    switch(interaction.commandName){
-      case "ping":{
-        interaction.reply('pong');
-      }
-      case "create-private-channel": {
-        
-        let channel_name = interaction.options.get('channel-name')?.value;
-  
-        let memberArray = []
-  
-        interaction.reply(`What channel members do you want for "${channel_name}"`);
-  
-        inMemberAddToPrivateChannel = true;
-      }
+      inMemberAddToPrivateChannel = true;
+
+      usingMember = interaction.user.id
     }
   }
 
-
 })
+
+client.on("messageCreate", async (message) => {
+
+  if(inMemberAddToPrivateChannel && !message.author.bot && message.author.id === usingMember){ //Checks if the creation of private channel is on and the member is the writer of the message
+
+    if(message.content === "exit"){
+      message.reply("k")
+      inMemberAddToPrivateChannel = false;
+    }
+    else {
+
+      memberArray.push(message.content)
+
+    }
+    console.log(memberArray);
+
+  }
+  
+});
