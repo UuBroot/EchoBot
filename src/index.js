@@ -38,16 +38,52 @@ client.on("ready", () => {
   });
 });
 
+/*************
+ * Variables *
+ *************/
+
+let inMemberAddToPrivateChannel = false;
+
 /**********
  * Events *
  **********/
 
 client.on('interactionCreate', (interaction) => {
-  if(!interaction.isChatInputCommand())return; //Checks if interatiction is / command
 
-  switch(interaction.commandName){
-    case "ping":{
-      interaction.reply('pong');
+  if(inMemberAddToPrivateChannel){
+
+    if(interaction.commandName === "exit"){
+
+      inMemberAddToPrivateChannel = false;
+      interaction.reply(`exited`);
+
+    }
+
+    interaction.reply(`active member add`);
+
+  } 
+  else if ( !interaction.isChatInputCommand()){
+    console.log("TEST")
+
+    return;
+  } //Checks if interatiction is / command
+  else {
+    switch(interaction.commandName){
+      case "ping":{
+        interaction.reply('pong');
+      }
+      case "create-private-channel": {
+        
+        let channel_name = interaction.options.get('channel-name')?.value;
+  
+        let memberArray = []
+  
+        interaction.reply(`What channel members do you want for "${channel_name}"`);
+  
+        inMemberAddToPrivateChannel = true;
+      }
     }
   }
+
+
 })
